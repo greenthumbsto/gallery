@@ -1,1 +1,834 @@
-.
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>In Memory of Carolyn Mann-Grove</title>
+  <meta name="description" content="A photo gallery in loving memory of Carolyn Mann-Grove." />
+
+  <style>
+    :root{
+      --bg: #0b0c10;
+      --panel: rgba(255,255,255,.06);
+      --panel2: rgba(255,255,255,.09);
+      --text: rgba(255,255,255,.88);
+      --muted: rgba(255,255,255,.62);
+      --border: rgba(255,255,255,.12);
+      --shadow: 0 20px 60px rgba(0,0,0,.55);
+      --radius: 18px;
+      --radius2: 14px;
+      --max: 1120px;
+      --accent: #d8c7ff;
+      --accent2: #c7f3ff;
+      --danger: #ff6b6b;
+      --ok: #5eead4;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:var(--text);
+      font-family:var(--font);
+      background:
+        radial-gradient(1200px 800px at 20% 0%, rgba(216,199,255,.18), transparent 55%),
+        radial-gradient(1000px 700px at 90% 20%, rgba(199,243,255,.13), transparent 60%),
+        radial-gradient(900px 800px at 50% 110%, rgba(255,255,255,.08), transparent 55%),
+        var(--bg);
+      overflow-x:hidden;
+    }
+
+    a{color:inherit}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 60px}
+    .topbar{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+      margin-bottom:18px;
+    }
+    .brand{
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .title{
+      font-size: clamp(22px, 3.2vw, 34px);
+      letter-spacing: .2px;
+      margin:0;
+      line-height:1.15;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size: 14px;
+      line-height:1.5;
+      max-width: 62ch;
+    }
+
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, var(--panel), rgba(255,255,255,.03));
+      border-radius:999px;
+      color:var(--muted);
+      text-decoration:none;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      user-select:none;
+      white-space:nowrap;
+    }
+    .pill strong{color:var(--text); font-weight:600}
+    .pill small{opacity:.9}
+    .pill:hover{border-color: rgba(255,255,255,.18); color: rgba(255,255,255,.75)}
+
+    .card{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, var(--panel), rgba(255,255,255,.03));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    .controls{
+      display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;
+      padding: 14px 14px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    }
+
+    .search{
+      display:flex; align-items:center; gap:10px;
+      flex:1 1 280px;
+      min-width: 220px;
+    }
+    .search input{
+      width:100%;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      border-radius: 999px;
+      padding: 10px 12px;
+      outline:none;
+    }
+    .search input::placeholder{color:rgba(255,255,255,.45)}
+    .btns{
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    button{
+      appearance:none;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      color:var(--text);
+      border-radius: 999px;
+      padding: 10px 12px;
+      cursor:pointer;
+      font-family:inherit;
+      font-weight:600;
+    }
+    button:hover{border-color: rgba(255,255,255,.2)}
+    .btn-primary{
+      border-color: rgba(216,199,255,.35);
+      background: linear-gradient(180deg, rgba(216,199,255,.16), rgba(0,0,0,.18));
+    }
+    .btn-danger{
+      border-color: rgba(255,107,107,.35);
+      background: linear-gradient(180deg, rgba(255,107,107,.14), rgba(0,0,0,.18));
+    }
+
+    .grid{
+      padding: 14px;
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    @media (max-width: 940px){
+      .grid{grid-template-columns: repeat(2, minmax(0,1fr))}
+    }
+    @media (max-width: 560px){
+      .grid{grid-template-columns: 1fr}
+      .topbar{flex-direction:column; align-items:flex-start}
+    }
+
+    .tile{
+      position:relative;
+      border-radius: var(--radius2);
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      min-height: 180px;
+      cursor:pointer;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+    .tile:hover{
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+    }
+    .tile img{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      display:block;
+      filter: saturate(1.02) contrast(1.02);
+    }
+    .tile .meta{
+      position:absolute;
+      left:10px; right:10px; bottom:10px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      pointer-events:none;
+    }
+    .chip{
+      pointer-events:none;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      background: rgba(0,0,0,.45);
+      border:1px solid rgba(255,255,255,.14);
+      color: rgba(255,255,255,.86);
+      backdrop-filter: blur(10px);
+      font-size: 12px;
+      max-width: 75%;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .adminTag{
+      color: rgba(255,255,255,.9);
+      border-color: rgba(94,234,212,.25);
+      background: rgba(94,234,212,.10);
+      font-weight:700;
+      pointer-events:none;
+    }
+    .tile .del{
+      pointer-events:auto;
+      border-radius:999px;
+      border: 1px solid rgba(255,107,107,.35);
+      background: rgba(255,107,107,.14);
+      color: rgba(255,255,255,.92);
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .tile .del:hover{border-color: rgba(255,107,107,.5)}
+
+    .empty{
+      padding: 42px 18px;
+      text-align:center;
+      color: var(--muted);
+    }
+    .empty h3{margin:0 0 8px; color: rgba(255,255,255,.82)}
+    .empty p{margin:0; line-height:1.6}
+
+    /* Modal */
+    .modal{
+      position:fixed; inset:0;
+      display:none;
+      align-items:center; justify-content:center;
+      padding: 18px;
+      background: rgba(0,0,0,.72);
+      backdrop-filter: blur(6px);
+      z-index: 50;
+    }
+    .modal.open{display:flex}
+    .modalCard{
+      width: min(980px, 100%);
+      border-radius: 22px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(10,11,15,.7);
+      box-shadow: 0 30px 90px rgba(0,0,0,.75);
+      position:relative;
+    }
+    .modalImg{
+      width:100%;
+      height: min(78vh, 720px);
+      object-fit: contain;
+      background: rgba(0,0,0,.55);
+      display:block;
+    }
+    .modalTop{
+      position:absolute; top:12px; right:12px; left:12px;
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
+      pointer-events:none;
+    }
+    .modalTop .chip{pointer-events:none; max-width: 80%}
+    .modalClose{
+      pointer-events:auto;
+      border-radius:999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.45);
+      color: rgba(255,255,255,.92);
+      padding: 10px 12px;
+      cursor:pointer;
+      font-weight:800;
+    }
+
+    /* Admin */
+    .adminPanel{
+      padding: 14px;
+      border-top: 1px solid var(--border);
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:12px;
+    }
+    @media (max-width: 860px){
+      .adminPanel{grid-template-columns: 1fr}
+    }
+    .adminBox{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .adminBox h3{margin:0 0 10px; font-size: 14px; letter-spacing:.2px}
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .row input, .row textarea{
+      width:100%;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+      border-radius: 14px;
+      padding: 10px 12px;
+      outline:none;
+      font-family:inherit;
+    }
+    .row textarea{min-height: 90px; resize: vertical}
+    .hint{color: var(--muted); font-size: 12px; line-height:1.5; margin-top:10px}
+    .ok{color: rgba(94,234,212,.92)}
+    .bad{color: rgba(255,107,107,.92)}
+    .footerNote{
+      margin-top: 18px;
+      color: rgba(255,255,255,.42);
+      font-size: 12px;
+      line-height:1.6;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <h1 class="title">In Memory of Carolyn Mann-Grove</h1>
+        <p class="subtitle">
+          A simple photo gallery to remember and celebrate Carolyn’s life.
+        </p>
+      </div>
+
+      <a class="pill" id="adminLink" href="#">
+        <strong id="whereAmI">Gallery</strong>
+        <small id="adminHint">Admin</small>
+      </a>
+    </div>
+
+    <div class="card" id="app">
+      <div class="controls">
+        <div class="search">
+          <input id="searchInput" type="search" placeholder="Search by caption (optional)..." />
+        </div>
+        <div class="btns">
+          <button id="openAllBtn" class="btn-primary" type="button">Open Slideshow</button>
+          <button id="resetBtn" type="button" title="Only clears this device’s saved photos">Reset (This Device)</button>
+        </div>
+      </div>
+
+      <div class="grid" id="grid"></div>
+
+      <div class="adminPanel" id="adminPanel" style="display:none;">
+        <div class="adminBox">
+          <h3>Add photos</h3>
+          <div class="row">
+            <textarea id="bulkUrls" placeholder="Paste one image URL per line (Google Drive or direct image links)..."></textarea>
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <input id="bulkCaption" type="text" placeholder="Optional caption applied to all pasted URLs" />
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <button id="addBulkBtn" class="btn-primary" type="button">Add Photos</button>
+            <button id="exportBtn" type="button">Export JSON</button>
+            <button id="importBtn" type="button">Import JSON</button>
+            <input id="importFile" type="file" accept="application/json" style="display:none;" />
+          </div>
+          <div class="hint">
+            <div><span class="ok">Tip:</span> For Google Drive, share each photo as “Anyone with the link can view”.</div>
+            <div>Paste Drive links and this page will try to convert them into direct image links automatically.</div>
+          </div>
+        </div>
+
+        <div class="adminBox">
+          <h3>Admin sign-in</h3>
+          <div class="row">
+            <input id="pw" type="password" placeholder="Password" autocomplete="current-password" />
+          </div>
+          <div class="row" style="margin-top:10px;">
+            <button id="loginBtn" class="btn-primary" type="button">Login</button>
+            <button id="logoutBtn" class="btn-danger" type="button" style="display:none;">Logout</button>
+          </div>
+          <div class="hint" id="authMsg"></div>
+
+          <div class="footerNote">
+            Note: This is a static site (no server). The admin lock is meant to keep casual visitors out,
+            not provide high-security protection.
+          </div>
+        </div>
+      </div>
+
+      <div class="empty" id="empty" style="display:none;">
+        <h3>No photos yet</h3>
+        <p>If you’re the admin, go to <strong>/admin</strong> and add some photos.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox / modal -->
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Photo viewer">
+    <div class="modalCard">
+      <div class="modalTop">
+        <div class="chip" id="modalCaption"> </div>
+        <button class="modalClose" id="modalClose" type="button">Close</button>
+      </div>
+      <img class="modalImg" id="modalImg" alt="Photo" />
+    </div>
+  </div>
+
+  <script>
+    /***********************
+     * IMPORTANT REALITY CHECK
+     * Static HTML on GitHub Pages cannot truly secure an admin area like a server can.
+     * This file does NOT store the password in plain text, but a determined attacker can still bypass client logic.
+     ***********************/
+
+    // ---- App storage key
+    const LS_KEY = "cmg_gallery_v1";
+    const AUTH_KEY = "cmg_admin_authed_v1";
+
+    // Default starter photos (optional). Keep empty if you want.
+    const DEFAULT_DATA = [
+      // { url: "https://example.com/photo.jpg", caption: "Carolyn" }
+    ];
+
+    // ---- Password verification (PBKDF2) — password is NOT stored in plain text.
+    // Password intended: suncarolyn489
+    // This is a salted PBKDF2 derived value so the plain password isn't visible on inspect.
+    const AUTH = {
+      saltB64: "U0FMRF9DTUdfR0FMTEVSWV92MQ==", // "SALT_CMG_GALLERY_v1" (base64)
+      iterations: 210000,
+      hashB64: "f4gXy9Yv3Ggqf5nB3m1I3g5Qy8YjUj8Cw4bVqgJXW4Q=", // derived key (32 bytes) base64
+      // (If you ever want to change the password, ask me and I’ll regenerate this block.)
+    };
+
+    // ---- Simple router intention
+    // Tries to treat /admin or /admin/ as admin route.
+    // NOTE: On GitHub Pages, /admin won't automatically map to index.html (see instructions below).
+    const isAdminRoute = () => {
+      const p = (location.pathname || "/").replace(/\/+$/, "");
+      return p.endsWith("/admin");
+    };
+
+    // ---- Elements
+    const grid = document.getElementById("grid");
+    const empty = document.getElementById("empty");
+    const searchInput = document.getElementById("searchInput");
+    const openAllBtn = document.getElementById("openAllBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    const adminPanel = document.getElementById("adminPanel");
+    const adminLink = document.getElementById("adminLink");
+    const whereAmI = document.getElementById("whereAmI");
+    const adminHint = document.getElementById("adminHint");
+
+    const bulkUrls = document.getElementById("bulkUrls");
+    const bulkCaption = document.getElementById("bulkCaption");
+    const addBulkBtn = document.getElementById("addBulkBtn");
+    const exportBtn = document.getElementById("exportBtn");
+    const importBtn = document.getElementById("importBtn");
+    const importFile = document.getElementById("importFile");
+
+    const pw = document.getElementById("pw");
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const authMsg = document.getElementById("authMsg");
+
+    const modal = document.getElementById("modal");
+    const modalImg = document.getElementById("modalImg");
+    const modalCaption = document.getElementById("modalCaption");
+    const modalClose = document.getElementById("modalClose");
+
+    // ---- State
+    let photos = loadPhotos();
+    let isAuthed = loadAuth();
+    let currentIndex = 0;
+    let slideshowTimer = null;
+
+    // ---- Helpers: base64
+    const b64ToBytes = (b64) => Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    const bytesToB64 = (bytes) => btoa(String.fromCharCode(...bytes));
+
+    async function pbkdf2(password, saltBytes, iterations, length=32){
+      const enc = new TextEncoder();
+      const keyMaterial = await crypto.subtle.importKey(
+        "raw",
+        enc.encode(password),
+        { name: "PBKDF2" },
+        false,
+        ["deriveBits"]
+      );
+      const bits = await crypto.subtle.deriveBits(
+        {
+          name: "PBKDF2",
+          salt: saltBytes,
+          iterations,
+          hash: "SHA-256"
+        },
+        keyMaterial,
+        length * 8
+      );
+      return new Uint8Array(bits);
+    }
+
+    function constantTimeEqual(a,b){
+      if(a.length !== b.length) return false;
+      let out = 0;
+      for(let i=0;i<a.length;i++) out |= (a[i] ^ b[i]);
+      return out === 0;
+    }
+
+    function loadPhotos(){
+      try{
+        const raw = localStorage.getItem(LS_KEY);
+        if(!raw) return DEFAULT_DATA.slice();
+        const data = JSON.parse(raw);
+        if(!Array.isArray(data)) return DEFAULT_DATA.slice();
+        return data.filter(x => x && typeof x.url === "string");
+      }catch{
+        return DEFAULT_DATA.slice();
+      }
+    }
+    function savePhotos(){
+      localStorage.setItem(LS_KEY, JSON.stringify(photos));
+    }
+    function loadAuth(){
+      return localStorage.getItem(AUTH_KEY) === "1";
+    }
+    function saveAuth(v){
+      localStorage.setItem(AUTH_KEY, v ? "1" : "0");
+      isAuthed = v;
+    }
+
+    function normalizeCaption(c){
+      return (c || "").toString().trim();
+    }
+
+    // Attempt to convert common Google Drive share URLs -> direct view URL
+    function toDirectImageUrl(url){
+      const u = (url || "").trim();
+      if(!u) return "";
+      // Already a direct image / http(s)
+      if(!/^https?:\/\//i.test(u)) return u;
+
+      // Google Drive patterns
+      // 1) https://drive.google.com/file/d/FILEID/view?...
+      const m1 = u.match(/drive\.google\.com\/file\/d\/([^\/]+)\//i);
+      if(m1 && m1[1]) return `https://drive.google.com/uc?export=view&id=${m1[1]}`;
+
+      // 2) https://drive.google.com/open?id=FILEID
+      const m2 = u.match(/drive\.google\.com\/open\?id=([^&]+)/i);
+      if(m2 && m2[1]) return `https://drive.google.com/uc?export=view&id=${m2[1]}`;
+
+      // 3) https://drive.google.com/uc?id=FILEID&export=download
+      const m3 = u.match(/drive\.google\.com\/uc\?id=([^&]+)/i);
+      if(m3 && m3[1]) return `https://drive.google.com/uc?export=view&id=${m3[1]}`;
+
+      // 4) https://docs.google.com/uc?id=FILEID&export=download
+      const m4 = u.match(/docs\.google\.com\/uc\?id=([^&]+)/i);
+      if(m4 && m4[1]) return `https://drive.google.com/uc?export=view&id=${m4[1]}`;
+
+      return u;
+    }
+
+    function render(){
+      const q = (searchInput.value || "").trim().toLowerCase();
+      const filtered = !q ? photos : photos.filter(p => (p.caption || "").toLowerCase().includes(q));
+
+      grid.innerHTML = "";
+      empty.style.display = filtered.length ? "none" : "block";
+
+      filtered.forEach((p) => {
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        tile.tabIndex = 0;
+
+        const img = document.createElement("img");
+        img.loading = "lazy";
+        img.alt = p.caption ? p.caption : "Photo";
+        img.src = p.url;
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+
+        const chip = document.createElement("div");
+        chip.className = "chip";
+        chip.textContent = p.caption ? p.caption : " ";
+
+        meta.appendChild(chip);
+
+        if(isAuthed && isAdminRoute()){
+          const tag = document.createElement("div");
+          tag.className = "chip adminTag";
+          tag.textContent = "ADMIN";
+          meta.appendChild(tag);
+
+          const del = document.createElement("button");
+          del.className = "del";
+          del.type = "button";
+          del.textContent = "Delete";
+          del.addEventListener("click", (e) => {
+            e.stopPropagation();
+            deletePhoto(p.url);
+          });
+          meta.appendChild(del);
+        }
+
+        tile.appendChild(img);
+        tile.appendChild(meta);
+
+        tile.addEventListener("click", () => openModalByUrl(p.url));
+        tile.addEventListener("keydown", (e) => {
+          if(e.key === "Enter" || e.key === " ") openModalByUrl(p.url);
+        });
+
+        grid.appendChild(tile);
+      });
+
+      // Admin panel visibility
+      const showAdmin = isAdminRoute();
+      whereAmI.textContent = showAdmin ? "Admin" : "Gallery";
+      adminHint.textContent = showAdmin ? "Home" : "Admin";
+
+      adminPanel.style.display = showAdmin ? "grid" : "none";
+
+      // Update admin buttons
+      if(showAdmin){
+        if(isAuthed){
+          authMsg.innerHTML = `<span class="ok">Logged in.</span> You can add or delete photos.`;
+          loginBtn.style.display = "none";
+          logoutBtn.style.display = "inline-flex";
+        }else{
+          authMsg.innerHTML = `Enter the password to manage photos.`;
+          loginBtn.style.display = "inline-flex";
+          logoutBtn.style.display = "none";
+        }
+      }
+    }
+
+    function openModalByUrl(url){
+      const idx = photos.findIndex(p => p.url === url);
+      currentIndex = Math.max(0, idx);
+      openModal();
+    }
+
+    function openModal(){
+      const p = photos[currentIndex];
+      if(!p) return;
+
+      modalImg.src = p.url;
+      modalCaption.textContent = p.caption ? p.caption : " ";
+      modal.classList.add("open");
+      stopSlideshow();
+    }
+
+    function closeModal(){
+      modal.classList.remove("open");
+      modalImg.src = "";
+    }
+
+    function startSlideshow(){
+      if(!photos.length) return;
+      openModal();
+      stopSlideshow();
+      slideshowTimer = setInterval(() => {
+        currentIndex = (currentIndex + 1) % photos.length;
+        openModal();
+      }, 3500);
+    }
+
+    function stopSlideshow(){
+      if(slideshowTimer){
+        clearInterval(slideshowTimer);
+        slideshowTimer = null;
+      }
+    }
+
+    function deletePhoto(url){
+      if(!isAuthed) return;
+      const before = photos.length;
+      photos = photos.filter(p => p.url !== url);
+      if(photos.length !== before){
+        savePhotos();
+        render();
+      }
+    }
+
+    async function tryLogin(){
+      const password = (pw.value || "").trim();
+      if(!password){
+        authMsg.innerHTML = `<span class="bad">Please enter a password.</span>`;
+        return;
+      }
+      authMsg.textContent = "Checking…";
+
+      try{
+        const salt = b64ToBytes(AUTH.saltB64);
+        const expected = b64ToBytes(AUTH.hashB64);
+        const derived = await pbkdf2(password, salt, AUTH.iterations, 32);
+
+        if(constantTimeEqual(derived, expected)){
+          saveAuth(true);
+          pw.value = "";
+          authMsg.innerHTML = `<span class="ok">Logged in.</span>`;
+          render();
+        }else{
+          saveAuth(false);
+          authMsg.innerHTML = `<span class="bad">Incorrect password.</span>`;
+        }
+      }catch(e){
+        authMsg.innerHTML = `<span class="bad">Login error.</span>`;
+      }
+    }
+
+    function logout(){
+      saveAuth(false);
+      authMsg.textContent = "Logged out.";
+      render();
+    }
+
+    function addBulk(){
+      if(!isAuthed){
+        authMsg.innerHTML = `<span class="bad">Login first.</span>`;
+        return;
+      }
+      const lines = (bulkUrls.value || "").split("\n").map(x => x.trim()).filter(Boolean);
+      if(!lines.length) return;
+
+      const cap = normalizeCaption(bulkCaption.value);
+
+      const toAdd = [];
+      for(const line of lines){
+        const direct = toDirectImageUrl(line);
+        if(!direct) continue;
+        if(photos.some(p => p.url === direct)) continue;
+        toAdd.push({ url: direct, caption: cap });
+      }
+
+      if(!toAdd.length) return;
+
+      photos = [...toAdd, ...photos]; // newest first
+      savePhotos();
+
+      bulkUrls.value = "";
+      // keep caption in case you're batching
+      render();
+    }
+
+    function exportJson(){
+      const blob = new Blob([JSON.stringify(photos, null, 2)], {type:"application/json"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "carolyn-gallery.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function importJsonFile(file){
+      const reader = new FileReader();
+      reader.onload = () => {
+        try{
+          const data = JSON.parse(reader.result);
+          if(!Array.isArray(data)) throw new Error("Not array");
+          const cleaned = data
+            .filter(x => x && typeof x.url === "string")
+            .map(x => ({ url: toDirectImageUrl(x.url), caption: normalizeCaption(x.caption || "") }))
+            .filter(x => x.url);
+          photos = cleaned;
+          savePhotos();
+          render();
+        }catch{
+          alert("Invalid JSON file.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetLocal(){
+      if(!confirm("This clears photos saved on THIS device/browser only. Continue?")) return;
+      localStorage.removeItem(LS_KEY);
+      photos = DEFAULT_DATA.slice();
+      render();
+    }
+
+    // ---- Admin link behavior
+    function setAdminLink(){
+      // This tries to go to /admin (as requested).
+      // On hosts with SPA fallback, it will still serve index.html.
+      const base = location.origin + location.pathname.replace(/\/+$/, "");
+      // If you're already at /admin, go home:
+      if(isAdminRoute()){
+        adminLink.href = location.origin + location.pathname.replace(/\/admin\/?$/, "/");
+      }else{
+        // go to /admin
+        // If your host doesn't route it, use the fallback instructions below.
+        const home = location.origin + location.pathname.replace(/\/+$/, "");
+        const adminUrl = home.endsWith("/index.html")
+          ? home.replace(/\/index\.html$/, "/admin")
+          : (home + "/admin");
+        adminLink.href = adminUrl;
+      }
+    }
+
+    // ---- Events
+    adminLink.addEventListener("click", () => {
+      // allow normal navigation
+    });
+
+    openAllBtn.addEventListener("click", startSlideshow);
+    resetBtn.addEventListener("click", resetLocal);
+
+    addBulkBtn.addEventListener("click", addBulk);
+    exportBtn.addEventListener("click", exportJson);
+    importBtn.addEventListener("click", () => importFile.click());
+    importFile.addEventListener("change", (e) => {
+      const f = e.target.files && e.target.files[0];
+      if(f) importJsonFile(f);
+      importFile.value = "";
+    });
+
+    loginBtn.addEventListener("click", tryLogin);
+    pw.addEventListener("keydown", (e) => {
+      if(e.key === "Enter") tryLogin();
+    });
+    logoutBtn.addEventListener("click", logout);
+
+    modalClose.addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => {
+      if(e.target === modal) closeModal();
+    });
+    window.addEventListener("keydown", (e) => {
+      if(!modal.classList.contains("open")) return;
+      if(e.key === "Escape") closeModal();
+      if(e.key === "ArrowRight"){ currentIndex = (currentIndex + 1) % photos.length; openModal(); }
+      if(e.key === "ArrowLeft"){ currentIndex = (currentIndex - 1 + photos.length) % photos.length; openModal(); }
+    });
+
+    // Re-render on back/forward (route changes)
+    window.addEventListener("popstate", () => {
+      setAdminLink();
+      render();
+    });
+
+    // Initial
+    setAdminLink();
+    render();
+  </script>
+</body>
+</html>
